@@ -25,6 +25,11 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
+    public String getCameraDetails() {
+        return camera.getCameraDetails();
+    }
+
+    @Override
     public byte[] takePicture(int deviceId) {
         log.debug("take picture using camera");
         return camera.takePicture(deviceId);

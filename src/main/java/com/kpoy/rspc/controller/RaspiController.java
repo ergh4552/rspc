@@ -24,6 +24,15 @@ public class RaspiController {
         this.gpioAccess = gpioAccess;
     }
 
+    @RequestMapping("/")
+    public ResponseEntity<String> showRaspberry() {
+        String devices = imageService.getCameraDetails();
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS))
+                .contentType(MediaType.TEXT_HTML)
+                .body("<h1>showRaspberry</h1><br><p>"+devices+"<p>");
+    }
+
     @RequestMapping("/image")
     public ResponseEntity<byte[]> getImage() throws IOException {
 

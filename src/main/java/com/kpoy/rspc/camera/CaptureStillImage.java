@@ -29,6 +29,17 @@ public class CaptureStillImage implements Camera {
     }
 
     @Override
+    public String getCameraDetails() {
+        ProcessBuilder processBuilder = new ProcessBuilder(
+            "v4l2-ctl",
+                "--list-devices");
+        byte[] response = getProcessResponse(processBuilder);
+        String r = new String(response);
+        log.info("getCameraDetails {}", r);
+        return r;
+    }
+
+    @Override
     public byte[] takePicture(int deviceId) {
         // TODO: check valid device ids
         if (deviceId < 0 || deviceId > 4) {
@@ -50,32 +61,7 @@ public class CaptureStillImage implements Camera {
                 FSWEBCAM_DEVICE, device,
                 FSWEBCAM_STDOUT);
 
-        byte[] image;
-        try {
-
-            Process process = processBuilder.start();
-            log.debug("Started Process, wait for ending");
-            ByteStreamReader byteStreamReader = new ByteStreamReader(process.getInputStream());
-            byteStreamReader.start();
-            int exitValue = process.waitFor();
-            if (exitValue != 0) {
-                log.error(getFsWebCamErrors(process.getErrorStream()));
-                throw new CameraException("Error Occurred");
-            }
-            byteStreamReader.join();
-            image = byteStreamReader.getBytes();
-            process.destroy();
-        } catch (IOException ex) {
-            log.error("IOException: " + ex.getMessage(), ex);
-            throw new CameraException(ex.getMessage(), ex);
-        } catch (InterruptedException ex) {
-            log.error("InterruptedException: " + ex.getMessage(), ex);
-            throw new CameraException(ex.getMessage(), ex);
-        } catch (Exception ex) {
-            log.error("Exception: " + ex.getMessage(), ex);
-            throw new CameraException(ex.getMessage(), ex);
-        }
-        return image;
+        return getProcessResponse(processBuilder);
     }
 
     private static String getFsWebCamErrors(InputStream errStream) {
@@ -136,6 +122,34 @@ public class CaptureStillImage implements Camera {
         } catch (IOException ex) {
             log.error(ex.getMessage());
         }
+    }
+
+    private byte[] getProcessResponse(ProcessBuilder processBuilder) {
+        byte[] response;
+        try {
+            Process process = processBuilder.start();
+            log.debug("Started Process, wait for ending");
+            ByteStreamReader byteStreamReader = new ByteStreamReader(process.getInputStream());
+            byteStreamReader.start();
+            int exitValue = process.waitFor();
+            if (exitValue != 0) {
+                log.error(getFsWebCamErrors(process.getErrorStream()));
+                throw new CameraException("Error Occurred");
+            }
+            byteStreamReader.join();
+            response = byteStreamReader.getBytes();
+            process.destroy();
+        } catch (IOException ex) {
+            log.error("IOException: " + ex.getMessage(), ex);
+            throw new CameraException(ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            log.error("InterruptedException: " + ex.getMessage(), ex);
+            throw new CameraException(ex.getMessage(), ex);
+        } catch (Exception ex) {
+            log.error("Exception: " + ex.getMessage(), ex);
+            throw new CameraException(ex.getMessage(), ex);
+        }
+        return response;
     }
 
     class ByteStreamReader extends Thread {

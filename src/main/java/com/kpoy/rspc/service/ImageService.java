@@ -7,4 +7,6 @@ public interface ImageService {
     byte[] takePicture();
 
     byte[] takePicture(int deviceId);
+
+    String getCameraDetails();
 }
