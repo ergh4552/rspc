@@ -6,6 +6,7 @@ import com.kpoy.rspc.service.ImageService;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,6 +43,26 @@ public class RaspiController {
                     .body(errorImage);
         }
     }
+
+    @RequestMapping("/image/{deviceId}")
+    public ResponseEntity<byte[]> getImageWithDeviceId(@PathVariable("deviceId") int deviceId) throws IOException {
+        try {
+            byte[] image = imageService.takePicture(deviceId);
+
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS))
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(image);
+        } catch (Exception ex) {
+            String errorMessage = "something went wrong: " + ex.getMessage();
+            byte[] errorImage = errorMessage.getBytes();
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS))
+                    .contentType(MediaType.TEXT_HTML)
+                    .body(errorImage);
+        }
+    }
+
 
     @RequestMapping("/stored")
     public ResponseEntity<byte[]> getStoredImage() throws IOException {

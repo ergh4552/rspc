@@ -5,4 +5,6 @@ public interface ImageService {
     byte[] getLatestImage() throws Exception;
 
     byte[] takePicture();
+
+    byte[] takePicture(int deviceId);
 }

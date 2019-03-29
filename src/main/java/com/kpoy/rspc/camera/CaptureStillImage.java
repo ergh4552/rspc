@@ -25,6 +25,21 @@ public class CaptureStillImage implements Camera {
 
     @Override
     public byte[] takePicture() {
+        return takePictureWithDevice("/dev/video1");
+    }
+
+    @Override
+    public byte[] takePicture(int deviceId) {
+        // TODO: check valid device ids
+        if (deviceId < 0 || deviceId > 4) {
+            return "Invalid device id".getBytes();
+        }
+        String deviceName = "/dev/video"+deviceId;
+        return takePictureWithDevice(deviceName);
+    }
+
+
+    private byte[] takePictureWithDevice(String device) {
         // TODO: make used device configurable, now using Microsoft cam as the second USB cam...
         // TODO: make the frames per sec, skip frames and resolution configurable
         ProcessBuilder processBuilder = new ProcessBuilder(
@@ -32,7 +47,7 @@ public class CaptureStillImage implements Camera {
                 FSWEBCAM_FRAMESPERSEC, "15",
                 FSWEBCAM_SKIPFRAMES, "2",
                 FSWEBCAM_RESOLUTION, "1280x720",
-                FSWEBCAM_DEVICE, "/dev/video1",
+                FSWEBCAM_DEVICE, device,
                 FSWEBCAM_STDOUT);
 
         byte[] image;
@@ -152,5 +167,6 @@ public class CaptureStillImage implements Camera {
         public byte[] getBytes() {
             return this.bytes;
         }
+
     }
 }
