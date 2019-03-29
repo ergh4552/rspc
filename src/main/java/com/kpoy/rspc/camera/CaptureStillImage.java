@@ -40,15 +40,15 @@ public class CaptureStillImage implements Camera {
 
             Process process = processBuilder.start();
             log.debug("Started Process, wait for ending");
-            ByteStreamReader bsr = new ByteStreamReader(process.getInputStream());
-            bsr.start();
+            ByteStreamReader byteStreamReader = new ByteStreamReader(process.getInputStream());
+            byteStreamReader.start();
             int exitValue = process.waitFor();
             if (exitValue != 0) {
-                log.error(getFsWebcamErrors(process.getErrorStream()));
+                log.error(getFsWebCamErrors(process.getErrorStream()));
                 throw new CameraException("Error Occurred");
             }
-            bsr.join();
-            image = bsr.getBytes();
+            byteStreamReader.join();
+            image = byteStreamReader.getBytes();
             process.destroy();
         } catch (IOException ex) {
             log.error("IOException: " + ex.getMessage(), ex);
@@ -63,28 +63,28 @@ public class CaptureStillImage implements Camera {
         return image;
     }
 
-    private static String getFsWebcamErrors(InputStream errStream) {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader br = null;
+    private static String getFsWebCamErrors(InputStream errStream) {
+        StringBuilder stringBuilder = new StringBuilder();
+        BufferedReader bufferedReader = null;
         try {
-            br = new BufferedReader(new InputStreamReader(errStream));
+            bufferedReader = new BufferedReader(new InputStreamReader(errStream));
             String line = null;
-            while ((line = br.readLine()) != null) {
-                sb.append(line + System.getProperty("line.separator"));
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line + System.getProperty("line.separator"));
             }
         } catch (IOException ex) {
             log.error(ex.getMessage());
         } finally {
             try {
-                br.close();
+                bufferedReader.close();
             } catch (Throwable ignore) {
             }
         }
-        return sb.toString();
+        return stringBuilder.toString();
     }
 
     /**
-     * @return the image from
+     * @return the image from /tmp/
      */
     public byte[] getStoredPicture() {
         Resource res;
